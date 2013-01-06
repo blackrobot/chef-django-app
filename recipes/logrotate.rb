@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: django_application
+# Cookbook Name:: django-application
 # Recipe:: logrotate
 #
 # Copyright 2012, Blenderbox

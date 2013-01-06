@@ -7,7 +7,7 @@ long_description  IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.1.0"
 # recipe           "application", "Empty placeholder recipe, use the LWRPs, see README.md."
 
-%w{ nginx application python supervisor }.each do |dep|
+%w{ nginx application python supervisor database mysql }.each do |dep|
   depends dep
 end
 

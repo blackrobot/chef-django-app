@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: django_application
+# Cookbook Name:: django-application
 # Recipe:: default
 #
 # Copyright 2012, Blenderbox
@@ -8,5 +8,6 @@
 #
 
 include_recipe "django-application::nginx"
-include_recipe "django-application::app"
+include_recipe "django-application::database"
+include_recipe "django-application::django"
 include_recipe "django-application::logrotate"

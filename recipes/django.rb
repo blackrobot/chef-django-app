@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: django_application
+# Cookbook Name:: django-application
 # Recipe:: django
 #
 # Copyright 2012, Blenderbox
@@ -44,7 +44,7 @@ bash "virtualenvwrapper" do
 end
 
 # Create each of the sites
-default['app']['sites'].each do |site_name, site_conf|
+node['app']['sites'].each do |site_name, site_conf|
   proj_dir = "#{base_dir}/#{site_name}"
   env_dir = "#{proj_dir}/env"
   app_dir = "#{proj_dir}/app"
