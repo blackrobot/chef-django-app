@@ -7,6 +7,6 @@
 # All rights reserved - Do Not Redistribute
 #
 
-include_recipe "django_application::nginx"
-include_recipe "django_application::app"
-include_recipe "django_application::logrotate"
+include_recipe "django-application::nginx"
+include_recipe "django-application::app"
+include_recipe "django-application::logrotate"
