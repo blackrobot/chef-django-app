@@ -9,5 +9,6 @@
 
 include_recipe "django-application::nginx"
 include_recipe "django-application::database"
+include_recipe "django-application::python"
 include_recipe "django-application::django"
 include_recipe "django-application::logrotate"
