@@ -1,0 +1,21 @@
+compress
+delaycompress
+notifempty
+rotate 7
+missingok
+
+<%= @site_dir %>log/nginx/*.log {
+  size=1M
+  sharedscripts
+  postrotate
+    [ ! -f <%= @nginx_pid %> ] || kill -USR1 `cat <%= @nginx_pid %>`
+  endscript
+}
+
+<%= @site_dir %>log/gunicorn.log {
+  weekly
+  create 640 <%= @nginx_user %> <%= @nginx_group %>
+  postrotate
+    kill -USR1 `cat <%= @site_dir %>pid/gunicorn.pid`
+  endscript
+}
