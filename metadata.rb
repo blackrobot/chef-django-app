@@ -1,4 +1,4 @@
-name             "django_application"
+name             "django-application"
 maintainer       "blackrobot"
 maintainer_email "damonjablons@gmail.com"
 license          "Apache 2.0"
