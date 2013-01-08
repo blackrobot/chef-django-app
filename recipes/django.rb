@@ -93,12 +93,12 @@ node['app']['sites'].each do |site|
   end
 
   # Create the virtual environment
-  execute "mkvirtualenv" do
+  bash "mkvirtualenv" do
     cwd user_home
     user app_user
     group app_group
     action :run
-    command "source #{venv_script} && mkvirtualenv #{site_name}"
+    code "source #{venv_script} && mkvirtualenv #{site_name}"
     environment({
       'HOME' => user_home,
       'WORKON_HOME' => envs_dir
