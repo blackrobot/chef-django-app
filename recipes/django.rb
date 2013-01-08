@@ -26,6 +26,7 @@ directory envs_dir do
   owner app_user
   group app_group
   mode 0755
+  recursive true
 end
 
 # Add the virtualenvwrapper vars to the bash profile
