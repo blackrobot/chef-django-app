@@ -112,12 +112,12 @@ node['app']['sites'].each do |site|
   end
 
   # Install the pip requirements
-  execute "pip_requirements" do
+  bash "pip_requirements" do
     cwd app_dir
     user app_user
     group app_group
     action :run
-    command "#{env_dir}/bin/pip install -r #{site[:django][:requirements]}"
+    code "#{env_dir}/bin/pip install -r #{app_dir}/#{site[:django][:requirements]}"
   end
 
   # Link the settings file
