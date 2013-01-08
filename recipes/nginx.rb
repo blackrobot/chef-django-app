@@ -12,7 +12,3 @@ node['app']['sites'].each do |site|
     to "#{node[:app][:base]}/#{site[:name]}/app/#{site[:nginx]}"
   end
 end
-
-service "nginx" do
-  action [:restart, :enable]
-end

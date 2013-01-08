@@ -36,6 +36,7 @@ if rsa_key
     owner app_user
     group app_group
     mode 0600
+    action :create_if_missing
   end
 
   # Create the SSH wrapper
@@ -45,6 +46,7 @@ if rsa_key
     group app_group
     mode 0550
     variables :base_dir => base_dir
+    action :create_if_missing
   end
 end
 
@@ -55,7 +57,7 @@ bash "virtualenvwrapper" do
   code <<-EOF
     echo "export WORKON_HOME='#{envs_dir}'" >> #{usr_profile}
     echo "source #{venv_script}" >> #{usr_profile}
-    source #{usr_profile}
+    su #{app_user} -l -c 'source #{usr_profile}'
   EOF
   action :run
   not_if "grep -q WORKON_HOME #{usr_profile}"
@@ -68,6 +70,14 @@ node['app']['sites'].each do |site|
   env_dir = "#{proj_dir}/env"
   app_dir = "#{proj_dir}/app"
 
+  # Create the project dir
+  directory proj_dir do
+    owner app_user
+    group app_group
+    mode 0750
+    recursive true
+  end
+
   # Clone the application
   git site_name do
     destination app_dir
@@ -77,13 +87,15 @@ node['app']['sites'].each do |site|
     user app_user
     group app_group
 
+    action :sync
+
     if rsa_key
       ssh_wrapper "#{base_dir}/deploy_ssh"
     end
   end
 
   # Create all of the directories
-  ["log", "pid", "public/static", "public/media"].each do |dir|
+  ["log/nginx", "pid", "public/static", "public/media"].each do |dir|
     directory "#{proj_dir}/#{dir}" do
       owner app_user
       group app_group
@@ -132,6 +144,11 @@ node['app']['sites'].each do |site|
 end
 
 # Restart supervisor
-execute "supervisorctl restart all" do
+execute "supervisorctl update" do
   user "root"
+end
+
+# Restart nginx
+service "nginx" do
+  action [:restart, :enable]
 end

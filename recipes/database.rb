@@ -22,11 +22,17 @@ node['app']['sites'].each do |site|
   if site['database'].has_key? 'user'
     mysql_database_user site['database']['user'] do
       connection db_conn
-      database_name node['database']['name']
-      host '%'
-      privileges [:all]
       password node['database']['password']
-      action [:create, :grant]
+      action :create
+    end
+
+    mysql_database_user site['database']['user'] do
+      connection db_conn
+      database_name node['database']['name']
+      password node['database']['password']
+      host db_conn['host']
+      privileges [:all]
+      action :grant
     end
   end
 end

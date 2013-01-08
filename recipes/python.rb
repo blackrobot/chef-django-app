@@ -9,7 +9,8 @@
 
 
 # Install the image libraries
-["libjpeg62", "libjpeg62-dev", "zlib1g-dev"].each do |pkg|
+["libjpeg62", "libjpeg62-dev", "zlibc",
+ "zlib1g", "zlib1g-dev", "libmemcached-dev"].each do |pkg|
   package pkg do
     action :install
   end
@@ -18,13 +19,9 @@ end
 # If Ubuntu and x86, symlink the x86 libs to the
 # regular /usr/lib directory for PIL
 if platform?("ubuntu") and node[:languages][:ruby][:host_cpu] == "x86_64"
-  lib_def_path = "/usr/lib"
-  lib_64_path = "/usr/lib/x86_64-linux-gnu"
-  lib_files = ["libjpeg.so", "libz.so"]
-
-  lib_files.each do |lib|
-    link "#{lib_64_path}/#{lib}" do
-      to "#{lib_def_path}/#{lib}"
+  ["libjpeg.so", "libz.so"].each do |lib|
+    link "/usr/lib/#{lib}" do
+      to "/usr/lib/x86_64-linux-gnu/#{lib}"
       owner "root"
       group "root"
     end
