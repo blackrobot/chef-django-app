@@ -14,5 +14,5 @@ node['app']['sites'].each do |site_name, site_conf|
 end
 
 service "nginx" do
-  action :restart, :enable
+  action [:restart, :enable]
 end
