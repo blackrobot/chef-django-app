@@ -29,6 +29,25 @@ directory envs_dir do
   recursive true
 end
 
+if rsa_key
+  # Upload the deploy key
+  file "#{base_dir}/deploy_rsa" do
+    content rsa_key
+    owner app_user
+    group app_group
+    mode 0600
+  end
+
+  # Create the SSH wrapper
+  template "#{base_dir}/deploy_ssh" do
+    source "deploy_ssh.erb"
+    owner app_user
+    group app_group
+    mode 0550
+    variables :base_dir => base_dir
+  end
+end
+
 # Add the virtualenvwrapper vars to the bash profile
 venv_script = "/usr/local/bin/virtualenvwrapper.sh"
 usr_profile = "#{user_home}/.profile"
@@ -43,20 +62,24 @@ bash "virtualenvwrapper" do
 end
 
 # Create each of the sites
-node['app']['sites'].each do |site_conf|
-  site_name = site_conf['name']
+node['app']['sites'].each do |site|
+  site_name = site['name']
   proj_dir = "#{base_dir}/#{site_name}"
   env_dir = "#{proj_dir}/env"
   app_dir = "#{proj_dir}/app"
 
   # Clone the application
-  application site_name do
-    path app_dir
-    owner app_user
+  git site_name do
+    destination app_dir
+    repository site['repository']
+    revision site['revision'] || "HEAD"
+
+    user app_user
     group app_group
-    repository node['app']['repository']
-    revision site_conf['revision']
-    deploy_key rsa_key if rsa_key
+
+    if rsa_key
+      ssh_wrapper "#{base_dir}/deploy_ssh"
+    end
   end
 
   # Create all of the directories
@@ -94,17 +117,17 @@ node['app']['sites'].each do |site_conf|
     user app_user
     group app_group
     action :run
-    command "#{env_dir}/bin/pip install -r #{site_conf[:django][:requirements]}"
+    command "#{env_dir}/bin/pip install -r #{site[:django][:requirements]}"
   end
 
   # Link the settings file
-  link "#{app_dir}/#{site_conf[:django][:settings][:link]}" do
-    to "#{app_dir}/#{site_conf[:django][:settings][:target]}"
+  link "#{app_dir}/#{site[:django][:settings][:link]}" do
+    to "#{app_dir}/#{site[:django][:settings][:target]}"
   end
 
   # Setup supervisor
-  link "#{node[:supervisor][:dir]}/#{site_conf[:supervisor].split('/').last}" do
-    to "#{app_dir}/#{site_conf[:supervisor]}"
+  link "#{node[:supervisor][:dir]}/#{site[:supervisor].split('/').last}" do
+    to "#{app_dir}/#{site[:supervisor]}"
   end
 end
 
