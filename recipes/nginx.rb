@@ -7,9 +7,9 @@
 # All rights reserved - Do Not Redistribute
 #
 
-node['app']['sites'].each do |site_name, site_conf|
-  link "#{node[:nginx][:dir]}/sites-enabled/#{site_conf[:nginx].split('/').last}" do
-    to "#{node[:app][:base]}/#{site_name}/app/#{site_conf[:nginx]}"
+node['app']['sites'].each do |site|
+  link "#{node[:nginx][:dir]}/sites-enabled/#{site[:nginx].split('/').last}" do
+    to "#{node[:app][:base]}/#{site[:name]}/app/#{site[:nginx]}"
   end
 end
 

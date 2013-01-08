@@ -42,7 +42,8 @@ bash "virtualenvwrapper" do
 end
 
 # Create each of the sites
-node['app']['sites'].each do |site_name, site_conf|
+node['app']['sites'].each do |site_conf|
+  site_name = site_conf['name']
   proj_dir = "#{base_dir}/#{site_name}"
   env_dir = "#{proj_dir}/env"
   app_dir = "#{proj_dir}/app"

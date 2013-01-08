@@ -12,10 +12,10 @@ package "logrotate"
 base_dir = node['app']['base']
 sub_dirs = node['app']['dirs']
 
-node['app']['sites'].keys.each do |site|
-  site_dir = "#{base_dir}/#{site}"
+node['app']['sites'].each do |site|
+  site_dir = "#{base_dir}/#{site[:name]}"
 
-  template "/etc/logrotate.d/#{site}" do
+  template "/etc/logrotate.d/#{site[:name]}" do
     source "logrotate.erb"
     mode 0440
     owner "root"
