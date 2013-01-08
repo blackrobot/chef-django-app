@@ -59,7 +59,7 @@ node['app']['sites'].each do |site_conf|
   end
 
   # Create all of the directories
-  %w{ "log" "pid" "public/static" "public/media" }.values.each do |dir|
+  ["log", "pid", "public/static", "public/media"].each do |dir|
     directory "#{proj_dir}/#{dir}" do
       owner app_user
       group app_group
