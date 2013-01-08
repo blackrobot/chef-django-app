@@ -7,8 +7,6 @@
 # All rights reserved - Do Not Redistribute
 #
 
-include_attribute "supervisor"
-
 base_dir = node['app']['base']
 envs_dir = "#{base_dir}/envs"
 

@@ -7,6 +7,10 @@
 # All rights reserved - Do Not Redistribute
 #
 
+include_attribute "nginx"
+include_attribute "mysql"
+include_attribute "supervisor"
+
 default['app']['base'] = "/var/www"
 default['app']['data_bag_name'] = "users"
 default['app']['user_id'] = "deploy"
