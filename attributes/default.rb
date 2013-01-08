@@ -8,7 +8,7 @@
 #
 
 include_attribute "nginx"
-include_attribute "mysql"
+include_attribute "mysql::server"
 include_attribute "supervisor"
 
 default['app']['base'] = "/var/www"
