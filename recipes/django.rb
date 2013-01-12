@@ -12,9 +12,13 @@ envs_dir = "#{base_dir}/envs"
 
 u = data_bag_item(node['app']['data_bag_name'], node['app']['user_id'])
 app_user = u['username'] || u['id']
-app_group = u['deploy_group']
-rsa_key = u['deploy_key']
+deploy_user = u['deploy_user'] || app_user
+deploy_group = u['deploy_group'] || app_user
 user_home = u['home'] || "/home/#{app_user}"
+
+rsa_key = u['deploy_key']
+git_wrapper = "#{base_dir}/deploy_ssh"
+
 
 # Install virtualenvwrapper
 python_pip "virtualenvwrapper" do
@@ -24,7 +28,7 @@ end
 # Create the WORKON_HOME directory
 directory envs_dir do
   owner app_user
-  group app_group
+  group deploy_group
   mode 0755
   recursive true
 end
@@ -34,33 +38,43 @@ if rsa_key
   file "#{base_dir}/deploy_rsa" do
     content rsa_key
     owner app_user
-    group app_group
+    group deploy_group
     mode 0600
     action :create_if_missing
   end
 
   # Create the SSH wrapper
-  template "#{base_dir}/deploy_ssh" do
+  template git_wrapper do
     source "deploy_ssh.erb"
     owner app_user
-    group app_group
+    group deploy_group
     mode 0550
     variables :base_dir => base_dir
     action :create_if_missing
   end
 end
 
+
 # Add the virtualenvwrapper vars to the bash profile
 venv_script = "/usr/local/bin/virtualenvwrapper.sh"
 usr_profile = "#{user_home}/.profile"
+
+template "#{user_home}/.profile" do
+  source "profile.erb"
+  owner app_user
+  group app_user
+  mode 0644
+  variables({
+    :rsa_key => rsa_key,
+    :git_wrapper_path => git_wrapper,
+    :envs_dir => envs_dir,
+    :venv_wrapper_path => venv_script
+  })
+end
+
 bash "virtualenvwrapper" do
-  code <<-EOF
-    echo "export WORKON_HOME='#{envs_dir}'" >> #{usr_profile}
-    echo "source #{venv_script}" >> #{usr_profile}
-    su #{app_user} -l -c 'source #{usr_profile}'
-  EOF
+  code "su #{app_user} -l -c 'source #{usr_profile}'"
   action :run
-  not_if "grep -q WORKON_HOME #{usr_profile}"
 end
 
 # Create each of the sites
@@ -72,9 +86,9 @@ node['app']['sites'].each do |site|
 
   # Create the project dir
   directory proj_dir do
-    owner app_user
-    group app_group
-    mode 0750
+    owner deploy_user
+    group deploy_group
+    mode 0770
     recursive true
   end
 
@@ -82,10 +96,10 @@ node['app']['sites'].each do |site|
   git site_name do
     destination app_dir
     repository site['repository']
-    revision site['revision'] || "HEAD"
+    reference site['reference'] || "master"
 
     user app_user
-    group app_group
+    group deploy_group
 
     action :sync
 
@@ -95,11 +109,11 @@ node['app']['sites'].each do |site|
   end
 
   # Create all of the directories
-  ["log/nginx", "pid", "public/static", "public/media"].each do |dir|
+  %w{ log log/nginx pid public public/static public/media }.each do |dir|
     directory "#{proj_dir}/#{dir}" do
-      owner app_user
-      group app_group
-      mode 0755
+      owner deploy_user
+      group deploy_group
+      mode 0770
       recursive true
     end
   end
@@ -108,7 +122,7 @@ node['app']['sites'].each do |site|
   bash "mkvirtualenv" do
     cwd user_home
     user app_user
-    group app_group
+    group deploy_group
     action :run
     code "source #{venv_script} && mkvirtualenv #{site_name}"
     environment({
@@ -127,9 +141,11 @@ node['app']['sites'].each do |site|
   bash "pip_requirements" do
     cwd app_dir
     user app_user
-    group app_group
+    group deploy_group
     action :run
-    code "#{env_dir}/bin/pip install -r #{app_dir}/#{site[:django][:requirements]}"
+    code <<-EOH
+      #{env_dir}/bin/pip install -r #{app_dir}/#{site[:django][:requirements]}
+    EOH
   end
 
   # Link the settings file
@@ -143,12 +159,12 @@ node['app']['sites'].each do |site|
   end
 end
 
-# Restart supervisor
+# Reload supervisor configs
 execute "supervisorctl update" do
   user "root"
 end
 
 # Restart nginx
 service "nginx" do
-  action [:restart, :enable]
+  action :restart
 end

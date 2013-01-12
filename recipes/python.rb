@@ -9,8 +9,8 @@
 
 
 # Install the image libraries
-["libjpeg62", "libjpeg62-dev", "zlibc",
- "zlib1g", "zlib1g-dev", "libmemcached-dev"].each do |pkg|
+%w{ libjpeg62 libjpeg62-dev libmemcached-dev
+    zlib1g-dev zlibc zlib1g }.each do |pkg|
   package pkg do
     action :install
   end
