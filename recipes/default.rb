@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: django-application
+# Cookbook Name:: django-app
 # Recipe:: default
 #
 # Copyright 2012, Blenderbox
@@ -7,8 +7,8 @@
 # All rights reserved - Do Not Redistribute
 #
 
-include_recipe "django-application::nginx"
-include_recipe "django-application::database"
-include_recipe "django-application::python"
-include_recipe "django-application::django"
-include_recipe "django-application::logrotate"
+include_recipe "django-app::nginx"
+include_recipe "django-app::database"
+include_recipe "django-app::python"
+include_recipe "django-app::django"
+include_recipe "django-app::logrotate"

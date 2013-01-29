@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: django-application
+# Cookbook Name:: django-app
 # Recipe:: python
 #
 # Copyright 2012, Blenderbox

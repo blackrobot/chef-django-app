@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: django-application
+# Cookbook Name:: django-app
 # Recipe:: logrotate
 #
 # Copyright 2012, Blenderbox
@@ -10,10 +10,9 @@
 package "logrotate"
 
 base_dir = node['app']['base']
-sub_dirs = node['app']['dirs']
 
 node['app']['sites'].each do |site|
-  site_dir = "#{base_dir}/#{site[:name]}"
+  site_dir = ::File.join(base_dir, site['name'])
 
   template "/etc/logrotate.d/#{site[:name]}" do
     source "logrotate.erb"

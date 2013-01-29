@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: django-application
+# Cookbook Name:: django-app
 # Recipe:: nginx
 #
 # Copyright 2012, Blenderbox

@@ -7,8 +7,10 @@
 # All rights reserved - Do Not Redistribute
 #
 
+include_attribute "virtualenvwrapper"
 include_attribute "nginx"
 include_attribute "mysql::server"
+include_attribute "postgresql"
 include_attribute "supervisor"
 
 default['app']['base'] = "/var/www"
